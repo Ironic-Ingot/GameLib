@@ -1,33 +1,81 @@
-import pygame
-import random
+"""
+UI elements such as buttons and labels etc.
+"""
 
+import pygame
 
 class UI:
+    """
+    UI class for updating, drawing and creating the objects
+    """
+    
     def __init__(self):
-        self.buttons = []
-        self.labels = []
+        self.buttons: list[Button] = []
+        self.labels: list[Label] = []
         
-    def create_button(self, click_event, pos: pygame.Vector2, text: str='button', text_size: float=35, text_color: pygame.Color=(0, 0, 0), background=True, padding=0, background_size=pygame.Vector2(150, 50), background_color: pygame.Color=(200, 200, 200)) -> Button:
-        button = Button(click_event, pos, text, text_size, text_color, background, padding, background_size, background_color)
+    def create_button(
+                self, 
+                click_event,pos: pygame.Vector2, 
+                text: str='button', 
+                text_size: float=35, 
+                text_color: pygame.Color=(0, 0, 0), 
+                background: bool=True, 
+                padding: float=0, 
+                background_size=pygame.Vector2(150, 50), 
+                background_color: pygame.Color=(200, 200, 200)
+            ) -> Button:
+        
+        button = Button(
+            click_event,
+            pos,
+            text,
+            text_size,
+            text_color,
+            background,
+            padding,
+            background_size,
+            background_color
+            )
+        
         self.buttons.append(button)
         return button
     
-    def create_label(self, pos: pygame.Vector2, text: str='label', text_size: float=35, text_color: pygame.Color=(0, 0, 0), background=True, padding=0, background_size=pygame.Vector2(150, 50), background_color: pygame.Color=(200, 200, 200)):
-        label = Label(pos, text, text_size, text_color, background, padding, background_size, background_color)
+    def create_label(
+            self,
+            pos: pygame.Vector2,
+            text: str='label',
+            text_size: float=35,
+            text_color: pygame.Color=(0, 0, 0),
+            background: bool=True,
+            padding: float=0,
+            background_size=pygame.Vector2(150, 50),
+            background_color: pygame.Color=(200, 200, 200)
+            ) -> Label:
+        
+        label = Label(
+            pos,
+            text,
+            text_size,
+            text_color,
+            background,
+            padding,
+            background_size,
+            background_color
+            )
+        
         self.labels.append(label)
         return label
         
     def draw(self, screen):
-        for button in self.buttons:
-            button.draw(screen)
         for label in self.labels:
             label.draw(screen)
+        for button in self.buttons:
+            button.draw(screen)
+        
             
     def update(self, mouse_buttons, mouse_pos):
         for button in self.buttons:
             button.update(mouse_buttons, mouse_pos)
-
-
 
 class Label:
     def __init__(self, pos: pygame.Vector2, text: str, text_size: float=35, text_color: pygame.Color=(0, 0, 0), background: bool=False, padding=0, background_size=pygame.Vector2(0, 0), background_color: pygame.Color=(255, 0, 255)):
