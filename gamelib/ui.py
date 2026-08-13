@@ -8,14 +8,14 @@ class UI:
     """
     UI class for updating, drawing and creating the objects
     """
-    
     def __init__(self):
-        self.buttons: list[Button] = []
-        self.labels: list[Label] = []
-        self.overlays: list[Overlay] = []
+        self.buttons: dict[str, Button] = {}
+        self.labels: dict[str, Label] = {}
+        self.overlays: dict[str, Overlay] = {}
         
     def create_button(
-                self, 
+                self,
+                button_name: str,
                 click_event,pos: pygame.Vector2, 
                 text: str='button', 
                 text_size: float=35, 
@@ -24,7 +24,8 @@ class UI:
                 padding: float=0, 
                 background_size=pygame.Vector2(150, 50), 
                 background_color: pygame.Color=(200, 200, 200),
-                border_radius=0
+                border_radius: int=0,
+                toggle_colors: tuple[pygame.Color, pygame.Color] | None=None
             ) -> Button:
         
         button = Button(
@@ -37,14 +38,16 @@ class UI:
             padding,
             background_size,
             background_color,
-            border_radius
+            border_radius,
+            toggle_colors
             )
         
-        self.buttons.append(button)
+        self.buttons[button_name] = button
         return button
     
     def create_label(
             self,
+            label_name: str,
             pos: pygame.Vector2,
             text: str='label',
             text_size: float=35,
@@ -68,25 +71,25 @@ class UI:
             border_radius
             )
         
-        self.labels.append(label)
+        self.labels[label_name] = label
         return label
     
-    def create_overlay(self, size: pygame.Vector2, color: pygame.Color=(128, 128, 128), alpha: int=255):
+    def create_overlay(self, overlay_name: str, size: pygame.Vector2, color: pygame.Color=(128, 128, 128), alpha: int=255):
         overlay = Overlay(size, color, alpha)
-        self.overlays.append(overlay)
+        self.overlays[overlay_name] = overlay
         return overlay
         
     def draw(self, screen):
-        for overlay in self.overlays:
+        for overlay in self.overlays.values():
             overlay.draw(screen)
-        for label in self.labels:
+        for label in self.labels.values():
             label.draw(screen)
-        for button in self.buttons:
+        for button in self.buttons.values():
             button.draw(screen)
         
             
     def update(self, mouse_buttons, mouse_pos):
-        for button in self.buttons:
+        for button in self.buttons.values():
             button.update(mouse_buttons, mouse_pos)
 
 class Label:
@@ -185,16 +188,22 @@ class Label:
         self.pos = pygame.Vector2(self.background_rect.topleft)
         
 class Button(Label):
-    def __init__(self, click_event, pos, text, text_size, text_color, background, padding, background_size, background_color, border_radius):
+    def __init__(self, click_event, pos, text, text_size, text_color, background, padding, background_size, background_color, border_radius, toggle_colors):
         super().__init__(pos, text, text_size, text_color, background, padding, background_size, background_color, border_radius)
         self.click_event = click_event
         self.hovered = False
         self.mouse_clicked = False
         self.mouse_down = False
-        
+        self.toggle = True if toggle_colors is not None else False
+        if self.toggle:
+            self.toggle_colors = toggle_colors
+            self.state = True
         
     def draw(self, screen):
-        color = self.background_color
+        if not self.toggle:
+            color = self.background_color
+        else:
+            color = self.toggle_colors[self.state]
         if self.mouse_down and self.hovered:
             color = [val/1.1 for val in [*color]]
         elif self.hovered:
@@ -226,9 +235,19 @@ class Button(Label):
                 
         if not mouse_down and self.mouse_down:
             if self.hovered and self.mouse_clicked and self.click_event:
-                self.click_event()
+                if self.toggle:
+                    self.state = not self.state
+                    self.click_event(self.state)
+                else:
+                    self.click_event()
             self.mouse_clicked = False
-        self.mouse_down = mouse_down   
+        self.mouse_down = mouse_down
+        
+    def get_state(self):
+        if not self.toggle:
+            raise AttributeError(f'Button {self.text} is not toggleable')
+        else:
+            return self.state
 
 class Overlay:  # add ability to change color, alpha
     def __init__(self, size, color: pygame.Color=(128, 128, 128), alpha: int=255):
@@ -249,8 +268,9 @@ if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
     ui = UI()
-    button = ui.create_button(lambda: print('hello', random.randint(100, 200)), (100, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100))
-    label = ui.create_label((100, 300), "text:\n210394", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100), 20)
+    button = ui.create_button("button", lambda: print('hello', random.randint(100, 200)), (100, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100))
+    toggle_button = ui.create_button("togglebutton", lambda: print('toggle', random.randint(100, 200)), (300, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100), 15, ((255, 0, 0), (0, 255, 0)))
+    label = ui.create_label("label", (100, 300), "text:\n210394", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 255), 20)
     screen = pygame.display.set_mode((800, 600))
     running = True
     while running:
@@ -259,7 +279,7 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
         mouse_pos = pygame.mouse.get_pos()
-        label.update_text(f'text {random.randint(100000, 99999999)}')
+        ui.labels["label"].update_text(f'text {random.randint(100000, 99999999)}')
         ui.update(mouse_buttons, mouse_pos)
         screen.fill((30, 30, 30))
         ui.draw(screen)
