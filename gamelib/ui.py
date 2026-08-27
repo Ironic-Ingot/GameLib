@@ -25,7 +25,8 @@ class UI:
                 background_size=pygame.Vector2(150, 50), 
                 background_color: pygame.Color=(200, 200, 200),
                 border_radius: int=0,
-                toggle_colors: tuple[pygame.Color, pygame.Color] | None=None
+                toggle_colors: tuple[pygame.Color, pygame.Color] | None=None,
+                state: bool=True
             ) -> Button:
         
         button = Button(
@@ -39,7 +40,8 @@ class UI:
             background_size,
             background_color,
             border_radius,
-            toggle_colors
+            toggle_colors,
+            state
             )
         
         self.buttons[button_name] = button
@@ -188,7 +190,7 @@ class Label:
         self.pos = pygame.Vector2(self.background_rect.topleft)
         
 class Button(Label):
-    def __init__(self, click_event, pos, text, text_size, text_color, background, padding, background_size, background_color, border_radius, toggle_colors):
+    def __init__(self, click_event, pos, text, text_size, text_color, background, padding, background_size, background_color, border_radius, toggle_colors, state):
         super().__init__(pos, text, text_size, text_color, background, padding, background_size, background_color, border_radius)
         self.click_event = click_event
         self.hovered = False
@@ -197,7 +199,7 @@ class Button(Label):
         self.toggle = True if toggle_colors is not None else False
         if self.toggle:
             self.toggle_colors = toggle_colors
-            self.state = True
+            self.state = state if isinstance(state, bool) else False
         
     def draw(self, screen):
         if not self.toggle:
@@ -269,7 +271,7 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     ui = UI()
     button = ui.create_button("button", lambda: print('hello', random.randint(100, 200)), (100, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100))
-    toggle_button = ui.create_button("togglebutton", lambda: print('toggle', random.randint(100, 200)), (300, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100), 15, ((255, 0, 0), (0, 255, 0)))
+    toggle_button = ui.create_button("togglebutton", lambda x: print(x), (300, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100), 15, ((255, 0, 0), (0, 255, 0)))
     label = ui.create_label("label", (100, 300), "text:\n210394", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 255), 20)
     screen = pygame.display.set_mode((800, 600))
     running = True
