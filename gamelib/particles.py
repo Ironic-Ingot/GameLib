@@ -19,7 +19,7 @@ class ParticleManager:
                 spawn_range: pygame.Vector2= pygame.Vector2(0, 0),
                 slowdown: float=0.9,
                 start_speed: float=5,
-                color: pygame.Color=(255, 255, 255, 255),
+                color: tuple[int, int, int, int] | tuple[int, int, int]=(255, 255, 255, 255),
                 size: float=5,
                 lifetime: float = 60,
                 amount: int = 5,

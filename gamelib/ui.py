@@ -19,13 +19,13 @@ class UI:
                 click_event,pos: pygame.Vector2, 
                 text: str='button', 
                 text_size: float=35, 
-                text_color: pygame.Color=(0, 0, 0), 
+                text_color: tuple[int, int, int]=(0, 0, 0), 
                 background: bool=True, 
                 padding: float=0, 
                 background_size=pygame.Vector2(150, 50), 
-                background_color: pygame.Color=(200, 200, 200),
+                background_color: tuple[int, int, int]=(200, 200, 200),
                 border_radius: int=0,
-                toggle_colors: tuple[pygame.Color, pygame.Color] | None=None,
+                toggle_colors: tuple[tuple[int, int, int], tuple[int, int, int]] | None=None,
                 state: bool=True
             ) -> Button:
         
@@ -52,12 +52,12 @@ class UI:
             label_name: str,
             pos: pygame.Vector2,
             text: str='label',
-            text_size: float=35,
-            text_color: pygame.Color=(0, 0, 0),
+            text_size: int=35,
+            text_color: tuple[int, int, int]=(0, 0, 0),
             background: bool=True,
             padding: float=0,
             background_size=pygame.Vector2(0, 0),
-            background_color: pygame.Color=(200, 200, 200),
+            background_color: tuple[int, int, int]=(200, 200, 200),
             border_radius=0
             ) -> Label:
         
@@ -76,7 +76,7 @@ class UI:
         self.labels[label_name] = label
         return label
     
-    def create_overlay(self, overlay_name: str, size: pygame.Vector2, color: pygame.Color=(128, 128, 128), alpha: int=255):
+    def create_overlay(self, overlay_name: str, size: pygame.Vector2, color: tuple[int, int, int]=(128, 128, 128), alpha: int=255):
         overlay = Overlay(size, color, alpha)
         self.overlays[overlay_name] = overlay
         return overlay
@@ -95,7 +95,7 @@ class UI:
             button.update(mouse_buttons, mouse_pos)
 
 class Label:
-    def __init__(self, pos: pygame.Vector2, text: str, text_size: float=35, text_color: pygame.Color=(0, 0, 0), background: bool=False, padding=0, background_size=pygame.Vector2(0, 0), background_color: pygame.Color=(255, 0, 255), border_radius=0):
+    def __init__(self, pos: pygame.Vector2, text: str, text_size: int=35, text_color: tuple[int, int, int]=(0, 0, 0), background: bool=False, padding: float=0, background_size=pygame.Vector2(0, 0), background_color: tuple[int, int, int]=(255, 0, 255), border_radius=0):
         self.pos = pygame.Vector2(pos)
 
         self.text = text
@@ -205,7 +205,7 @@ class Button(Label):
         if not self.toggle:
             color = self.background_color
         else:
-            color = self.toggle_colors[self.state]
+            color = self.toggle_colors[self.state]  # type: ignore
         if self.mouse_down and self.hovered:
             color = [val/1.1 for val in [*color]]
         elif self.hovered:
@@ -213,7 +213,7 @@ class Button(Label):
         if self.background:
             pygame.draw.rect(
                 screen,
-                color,
+                color,  # type: ignore
                 self.background_rect,
                 border_radius=self.border_radius
             )
@@ -252,7 +252,7 @@ class Button(Label):
             return self.state
 
 class Overlay:  # add ability to change color, alpha
-    def __init__(self, size, color: pygame.Color=(128, 128, 128), alpha: int=255):
+    def __init__(self, size, color: tuple[int, int, int]=(128, 128, 128), alpha: int=255):
         self.surface = pygame.Surface(size, pygame.SRCALPHA)
         self.color = color
         self.alpha = alpha
@@ -270,9 +270,9 @@ if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
     ui = UI()
-    button = ui.create_button("button", lambda: print('hello', random.randint(100, 200)), (100, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100))
-    toggle_button = ui.create_button("togglebutton", lambda x: print(x), (300, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100), 15, ((255, 0, 0), (0, 255, 0)))
-    label = ui.create_label("label", (100, 300), "text:\n210394", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 255), 20)
+    button = ui.create_button("button", lambda: print('hello', random.randint(100, 200)), (100, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100))   # type: ignore
+    toggle_button = ui.create_button("togglebutton", lambda x: print(x), (300, 100), "click me", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 100), 15, ((255, 0, 0), (0, 255, 0)))   # type: ignore
+    label = ui.create_label("label", (100, 300), "text:\n210394", 50, (200, 200, 200), True, 10, (0, 0), (100, 100, 255), 20)   # type: ignore
     screen = pygame.display.set_mode((800, 600))
     running = True
     while running:
